@@ -1,40 +1,65 @@
-#include "Arduino_BMI270_BMM150.h"
+#include <Arduino.h>
+#include "BLEController.hpp"
+#include "DataPersistor.hpp"
+#include "IMUReader.hpp"
+#include "Measurement.hpp"
 
-#define WAIT_TIME 500     // How often to run the code (in milliseconds)
+const int CS_PIN = 10;
 
-float acc_x, acc_y, acc_z;
-float mag_x, mag_y, mag_z;
-float gyr_x, gyr_y, gyr_z;
-unsigned long previousMillis = 0;
+BLEController ble("sk8ordie");
+DataPersistor persistor(CS_PIN);
+IMUReader     imu;
+Measurement*  current = nullptr;
 
 void setup() {
-  Serial.begin(115200);
-  while (!Serial);
+    Serial.begin(9600);
+    while (!Serial);
 
-  if (!IMU.begin()) {
-    Serial.println("Failed to initialize IMU!");
-    while (1);
-  }
+    if (!imu.begin()) {
+        Serial.println("IMU init failed — halting");
+        while (1);
+    }
+
+    if (!persistor.begin()) {
+        Serial.println("SD init failed — halting");
+        while (1);
+    }
+
+    persistor.openSession(millis());
+
+    if (!ble.begin()) {
+        Serial.println("BLE init failed — halting");
+        while (1);
+    }
+
+    Serial.println("All systems ready");
 }
 
 void loop() {
-  if (IMU.accelerationAvailable() &&
-      IMU.gyroscopeAvailable()) {
+    ble.poll();
 
-    IMU.readAcceleration(acc_x, acc_y, acc_z);
-    IMU.readGyroscope(gyr_x, gyr_y, gyr_z);
-    //IMU.readMagneticField(mag_x, mag_y, mag_z);
+    if (ble.trickReceived()) {
+        if (current != nullptr) {
+            delete current;
+            current = nullptr;
+        }
+        current = new Measurement(ble.getLastTrick(), ble.getLastTimestamp());
+        persistor.writeMeasurementHeader(current->getTrick(), current->getStart());
+        ble.clearTrick();
+        Serial.println("Measurement started");
+    }
 
-    // CSV Zeile ausgeben
-    Serial.print(millis()); Serial.print(",");
-    Serial.print(acc_x);    Serial.print(",");
-    Serial.print(acc_y);    Serial.print(",");
-    Serial.print(acc_z);    Serial.print(",");
-    Serial.print(gyr_x);    Serial.print(",");
-    Serial.print(gyr_y);    Serial.print(",");
-    Serial.println(gyr_z);    //Serial.print(",");
-    // Serial.print(mag_x);    Serial.print(",");
-    // Serial.print(mag_y);    Serial.print(",");
-    // Serial.println(mag_z);
-  }
+    if (current != nullptr && imu.isAvailable()) {
+        DataPoint dp = imu.read();
+        persistor.writeDataPoint(dp);
+    }
+
+    if (ble.resultReceived() && current != nullptr) {
+        current->setResult(ble.getLastResult());
+        persistor.writeMeasurementFooter(current->getResult());
+        delete current;
+        current = nullptr;
+        ble.clearResult();
+        Serial.println("Measurement saved");
+    }
 }

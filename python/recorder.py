@@ -2,7 +2,7 @@ import serial
 import time
 
 RECORD_DURATION_S   = 10
-SERIAL_PORT         = "/dev/cu.usbmodem1101"
+SERIAL_PORT         = "/dev/cu.usbmodem2101"
 BAUD_RATE           = 115200
 
 s = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
