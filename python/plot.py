@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Daten laden
-df = pd.read_csv("kickflip_34584_bailed.csv")
+df = pd.read_csv("test.csv")
 df["ts"] = df["ts"] / 1000  # ms → Sekunden
 
 print(df)
