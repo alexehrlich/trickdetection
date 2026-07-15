@@ -68,7 +68,7 @@ def read_tricks_from_session(path):
             if line.startswith('---'):
                 header = line.split(',')
                 trick_name = header[1]
-                start_ms = header[2]
+                start_ms: int = int(header[2])
             elif line.startswith('result'):
                 footer = line.split(',')
                 result = footer[1]

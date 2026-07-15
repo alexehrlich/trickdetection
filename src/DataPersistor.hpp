@@ -14,6 +14,7 @@ public:
     void writeDataPoint(DataPoint dp);
     void writeMeasurementFooter(Result result);
     void closeSession();
+    void handleSerial();
 
     bool isReady() const;
 
@@ -22,6 +23,7 @@ private:
     File _file;
     bool _ready;
     int  _writeCount;
+    char _currentFilename[24];
 
     void flush();
 };

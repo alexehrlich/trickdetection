@@ -38,6 +38,9 @@ void setup() {
 void loop() {
     ble.poll();
 
+    //if USB-cable is connected to read the data
+    persistor.handleSerial();
+
     if (ble.trickReceived()) {
         if (current != nullptr) {
             delete current;

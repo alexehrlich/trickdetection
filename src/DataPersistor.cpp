@@ -2,12 +2,70 @@
 
 DataPersistor::DataPersistor(int csPin)
     : _csPin(csPin), _ready(false), _writeCount(0)
-{}
+{
+    _currentFilename[0] = '\0';
+}
 
 bool DataPersistor::begin() {
     _ready = SD.begin(_csPin);
     if (!_ready) Serial.println("SD init failed");
     return _ready;
+}
+
+void DataPersistor::handleSerial() {
+    if (!Serial.available()) return;
+
+    closeSession();
+
+    String cmd = Serial.readStringUntil('\n');
+    cmd.trim();
+
+    if (cmd == "list") {
+        File root = SD.open("/");
+        while (true) {
+            File entry = root.openNextFile();
+            if (!entry) break;
+            if (!entry.isDirectory()) {
+                Serial.println(entry.name());
+            }
+            entry.close();
+        }
+        root.close();
+        Serial.println("EOF");
+        return;
+    }
+
+    if (cmd.startsWith("get:")) {
+        String filename = cmd.substring(4);
+        File f = SD.open(filename.c_str(), FILE_READ);
+        if (!f) {
+            Serial.println("ERROR");
+            return;
+        }
+        Serial.println("SIZE:" + String(f.size()));
+        uint8_t buf[512];
+        int n;
+        while ((n = f.read(buf, sizeof(buf))) > 0) {
+            Serial.write(buf, n);
+        }
+        f.close();
+        Serial.println("\nEOF");
+        return;
+    }
+
+    if (cmd.startsWith("delete:")) {
+        String filename = cmd.substring(7);
+        if (filename.equalsIgnoreCase(_currentFilename)) {
+            Serial.println("ERROR: file in use");
+            return;
+        }
+        if (SD.remove(filename.c_str())) {
+            Serial.println("DELETED");
+        } else {
+            Serial.println("ERROR");
+        }
+        return;
+    }
 }
 
 bool DataPersistor::openSession(unsigned long ts) {
@@ -21,6 +79,9 @@ bool DataPersistor::openSession(unsigned long ts) {
         Serial.println("Failed to open session file");
         return false;
     }
+
+    strncpy(_currentFilename, filename, sizeof(_currentFilename));
+    _currentFilename[sizeof(_currentFilename) - 1] = '\0';
 
     Serial.print("Session opened: ");
     Serial.println(filename);
@@ -59,7 +120,7 @@ void DataPersistor::writeMeasurementFooter(Result result) {
 void DataPersistor::closeSession() {
     if (_file) {
         _file.close();
-        Serial.println("Session closed");
+        _currentFilename[0] = '\0';
     }
 }
 
