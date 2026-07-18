@@ -13,8 +13,17 @@ enum class Trick {
 };
 
 enum class Result {
-    LANDED = 0,
-    BAILED = 1
+    _0 =    0,  //BAILED
+    _1 =    1,  //LANDED
+    _2 =    2,  //LANDED
+    _3 =    3,  //LANDED
+    _4 =    4,  //LANDED
+    _5 =    5,  //LANDED
+    _6 =    6,  //LANDED
+    _7 =    7,  //LANDED
+    _8 =    8,  //LANDED
+    _9 =    9,  //LANDED
+    _10 =   10  //LANDED
 };
 
 struct DataPoint {

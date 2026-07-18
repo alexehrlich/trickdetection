@@ -68,11 +68,11 @@ void DataPersistor::handleSerial() {
     }
 }
 
-bool DataPersistor::openSession(unsigned long ts) {
+bool DataPersistor::openSession(String sessionName) {
     if (!_ready) return false;
 
     char filename[24];
-    snprintf(filename, sizeof(filename), "ses_%lu.csv", ts);
+    snprintf(filename, sizeof(filename), "/%s.CSV", sessionName.c_str());;
 
     _file = SD.open(filename, FILE_WRITE);
     if (!_file) {
@@ -110,9 +110,8 @@ void DataPersistor::writeDataPoint(DataPoint dp) {
 }
 
 void DataPersistor::writeMeasurementFooter(Result result) {
-    const char* r = (result == Result::LANDED) ? "landed" : "bailed";
     char buf[24];
-    snprintf(buf, sizeof(buf), "result,%s\n", r);
+    snprintf(buf, sizeof(buf), "result,%d\n", static_cast<int>(result));
     _file.write(buf, strlen(buf));
     flush();
 }

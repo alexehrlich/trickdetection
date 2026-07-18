@@ -19,16 +19,16 @@ void setup() {
         Serial.println("IMU init failed — halting");
         while (1);
     }
-
-    if (!persistor.begin()) {
-        Serial.println("SD init failed — halting");
-        while (1);
-    }
-
-    persistor.openSession(millis());
+    Serial.println("IMU init successful");
 
     if (!ble.begin()) {
         Serial.println("BLE init failed — halting");
+        while (1);
+    }
+    Serial.println("BLE init successful");
+
+    if (!persistor.begin()) {
+        Serial.println("SD init failed — halting");
         while (1);
     }
 
@@ -36,11 +36,19 @@ void setup() {
 }
 
 void loop() {
-    ble.poll();
 
     //if USB-cable is connected to read the data
     persistor.handleSerial();
 
+    ble.poll();
+
+    if (ble.sessionReceived()) {
+        persistor.openSession(ble.getSessionName());
+    }else{
+        return;
+    }
+
+    
     if (ble.trickReceived()) {
         if (current != nullptr) {
             delete current;

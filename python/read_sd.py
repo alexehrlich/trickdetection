@@ -1,7 +1,7 @@
 import serial
 import time
 
-PORT = "/dev/cu.usbmodem1101"  # deinen Port anpassen
+PORT = "/dev/cu.usbmodem101"  # deinen Port anpassen
 BAUD = 115200
 
 with serial.Serial(PORT, BAUD, timeout=2) as ser:

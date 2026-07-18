@@ -3,13 +3,14 @@
 
 #include <SD.h>
 #include "Measurement.hpp"
+#include <string>
 
 class DataPersistor {
 public:
     DataPersistor(int csPin);
 
     bool begin();
-    bool openSession(unsigned long ts);
+    bool openSession(String sessionName);
     void writeMeasurementHeader(Trick trick, unsigned long start);
     void writeDataPoint(DataPoint dp);
     void writeMeasurementFooter(Result result);
