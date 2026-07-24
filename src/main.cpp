@@ -12,8 +12,8 @@ IMUReader     imu;
 Measurement*  current = nullptr;
 
 void setup() {
-    Serial.begin(9600);
-    delay(500);
+    Serial.begin(115200);
+    while (!Serial && millis() < 3000);
 
     if (!imu.begin()) {
         Serial.println("IMU init failed — halting");
@@ -44,8 +44,7 @@ void loop() {
 
     if (ble.sessionReceived()) {
         persistor.openSession(ble.getSessionName());
-    }else{
-        return;
+        ble.clearSession();
     }
 
     

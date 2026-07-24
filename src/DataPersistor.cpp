@@ -45,11 +45,14 @@ void DataPersistor::handleSerial() {
         Serial.println("SIZE:" + String(f.size()));
         uint8_t buf[512];
         int n;
+        size_t sent = 0;
         while ((n = f.read(buf, sizeof(buf))) > 0) {
             Serial.write(buf, n);
+            sent += n;
         }
         f.close();
-        Serial.println("\nEOF");
+        Serial.print("\nEOF:");
+        Serial.println(sent);
         return;
     }
 
@@ -72,7 +75,7 @@ bool DataPersistor::openSession(String sessionName) {
     if (!_ready) return false;
 
     char filename[24];
-    snprintf(filename, sizeof(filename), "/%s.CSV", sessionName.c_str());;
+    snprintf(filename, sizeof(filename), "%s.CSV", sessionName.c_str());
 
     _file = SD.open(filename, FILE_WRITE);
     if (!_file) {

@@ -8,6 +8,7 @@ BLEController::BLEController(const char* deviceName)
       _sessionName(SESSION_NAME_UUID, BLEWrite, 24),
       _trickReceived(false),
       _resultReceived(false),
+      _sessionNameReceived(false),
       _lastTimestamp(0)
 {}
 
@@ -62,5 +63,6 @@ Result        BLEController::getLastResult()     const { return _lastResult; }
 String        BLEController::getSessionName()     const { return _lastSessionName; }
 unsigned long BLEController::getLastTimestamp()  const { return _lastTimestamp; }
 
-void BLEController::clearTrick()  { _trickReceived  = false; }
-void BLEController::clearResult() { _resultReceived = false; }
+void BLEController::clearTrick()   { _trickReceived      = false; }
+void BLEController::clearResult()  { _resultReceived     = false; }
+void BLEController::clearSession() { _sessionNameReceived = false; }

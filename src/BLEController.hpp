@@ -7,7 +7,7 @@
 #define SERVICE_UUID        "12345678-1234-1234-1234-123456789abc"
 #define TRICK_CHAR_UUID     "12345678-1234-1234-1234-123456789abd"
 #define RESULT_CHAR_UUID    "12345678-1234-1234-1234-123456789abe"
-#define SESSION_NAME_UUID   "12345678-1234-1234-1234-123456789AC1"
+#define SESSION_NAME_UUID   "12345678-1234-1234-1234-123456789ac1"
 class BLEController {
 public:
     BLEController(const char* deviceName);
@@ -26,6 +26,7 @@ public:
 
     void clearTrick();
     void clearResult();
+    void clearSession();
 
 private:
     const char*             _deviceName;

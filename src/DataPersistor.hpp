@@ -27,6 +27,7 @@ private:
     char _currentFilename[24];
 
     void flush();
+    static void sanitizeShortName(const String& sessionName, char* out, size_t outSize);
 };
 
 #endif
